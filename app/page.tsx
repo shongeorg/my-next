@@ -25,6 +25,24 @@ export default function Home() {
             {" posts page"}
           </Link>
         </li>
+        <li>.................</li>
+        <li>
+          <Link href="/api/blog/posts">
+            <span className="flex">
+              <Link2Icon></Link2Icon>
+            </span>
+            {" blog posts api"}
+          </Link>
+        </li>
+
+        <li>
+          <Link href="blog/posts">
+            <span className="flex">
+              <Link2Icon></Link2Icon>
+            </span>
+            {" blog posts"}
+          </Link>
+        </li>
       </ul>
     </div>
   );
