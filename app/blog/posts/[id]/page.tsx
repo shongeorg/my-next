@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import { deletePost } from "../actions/delete-post";
+import { Button } from "@/components/ui/button";
 
 async function getPost(id: number) {
   try {
@@ -32,6 +34,11 @@ export default async function BlogPostsPage({
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
       <p className="text-muted-foreground">{post.body}</p>
+      <form action={deletePost.bind(null, id)}>
+        <Button type="submit" variant="destructive">
+          Delete Post
+        </Button>
+      </form>
     </div>
   );
 }

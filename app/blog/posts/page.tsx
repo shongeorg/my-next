@@ -81,7 +81,9 @@ export default async function BlogPostsPage({
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-8">Блог</h1>
+      <h1 className="text-3xl font-bold mb-8">
+        Блог + <Link href={`/blog/posts/new`}>Додати пост</Link>
+      </h1>
 
       {posts.length === 0 ? (
         <div className="text-center py-12">
