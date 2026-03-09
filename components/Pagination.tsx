@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface PaginationProps {
   currentPage: number;
@@ -17,43 +18,36 @@ export function Pagination({
 
   return (
     <nav className="flex items-center justify-center gap-2" aria-label="Pagination">
-      <Link
-        href={`/?page=${prevPage}`}
-        className={`px-4 py-2 rounded-md border text-sm font-medium transition-colors ${
-          prevPage
-            ? "hover:bg-accent hover:text-accent-foreground"
-            : "opacity-50 pointer-events-none"
-        }`}
-        aria-disabled={!prevPage}
-      >
-        Previous
+      <Link href={`/?page=${prevPage}`} aria-disabled={!prevPage}>
+        <Button
+          variant="outline"
+          disabled={!prevPage}
+          className="rounded-full"
+        >
+          Previous
+        </Button>
       </Link>
 
       {pages.map((page) => (
-        <Link
-          key={page}
-          href={`/?page=${page}`}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-            page === currentPage
-              ? "bg-primary text-primary-foreground"
-              : "hover:bg-accent hover:text-accent-foreground"
-          }`}
-          aria-current={page === currentPage ? "page" : undefined}
-        >
-          {page}
+        <Link key={page} href={`/?page=${page}`}>
+          <Button
+            variant={page === currentPage ? "default" : "outline"}
+            className="rounded-full w-10"
+            aria-current={page === currentPage ? "page" : undefined}
+          >
+            {page}
+          </Button>
         </Link>
       ))}
 
-      <Link
-        href={`/?page=${nextPage}`}
-        className={`px-4 py-2 rounded-md border text-sm font-medium transition-colors ${
-          nextPage
-            ? "hover:bg-accent hover:text-accent-foreground"
-            : "opacity-50 pointer-events-none"
-        }`}
-        aria-disabled={!nextPage}
-      >
-        Next
+      <Link href={`/?page=${nextPage}`} aria-disabled={!nextPage}>
+        <Button
+          variant="outline"
+          disabled={!nextPage}
+          className="rounded-full"
+        >
+          Next
+        </Button>
       </Link>
     </nav>
   );

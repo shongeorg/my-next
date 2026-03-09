@@ -1,6 +1,9 @@
 import { Post } from "@/lib/types";
 import { deletePost } from "./action";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const API_BASE_URL = "https://hono-on-vercel-woad.vercel.app";
 
@@ -26,22 +29,38 @@ export default async function PostPage({ params }: PostPageProps) {
 
   if (!post) {
     return (
-      <main className="container mx-auto max-w-3xl px-4 py-8">
-        <h1 className="text-2xl font-bold">Post not found</h1>
+      <main className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-bold text-foreground">Post not found</h1>
+          <Link href="/">
+            <Button>Back to Home</Button>
+          </Link>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="container mx-auto max-w-3xl px-4 py-8 space-y-6">
-      <article className="prose prose-neutral dark:prose-invert max-w-none">
-        <header className="space-y-4">
+    <main className="min-h-screen bg-background">
+      <article className="container mx-auto max-w-3xl px-4 py-12">
+        <header className="flex items-center justify-between mb-8">
+          <Link href="/">
+            <Button variant="ghost" className="gap-2">
+              ← Back to all posts
+            </Button>
+          </Link>
+          <ThemeToggle />
+        </header>
+
+        <div className="space-y-6">
           <div className="flex items-start justify-between">
-            <div className="space-y-4">
-              <h1 className="text-4xl font-bold tracking-tight">{post.title}</h1>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span className="font-medium">{post.author}</span>
-                <span>•</span>
+            <div className="space-y-4 flex-1">
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground leading-tight">
+                {post.title}
+              </h1>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">{post.author}</span>
+                <Separator orientation="vertical" className="h-4 w-px bg-border" />
                 <time dateTime={post.create_at}>
                   {new Date(post.create_at).toLocaleDateString("en-US", {
                     year: "numeric",
@@ -52,13 +71,11 @@ export default async function PostPage({ params }: PostPageProps) {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Link
-                href={`/posts/${id}/edit`}
-                className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                title="Edit post"
-              >
-                ✏️
+            <div className="flex items-center gap-2 ml-4">
+              <Link href={`/posts/${id}/edit`}>
+                <Button variant="outline" size="icon" className="rounded-full" title="Edit post">
+                  ✏️
+                </Button>
               </Link>
               <form
                 action={async () => {
@@ -66,31 +83,27 @@ export default async function PostPage({ params }: PostPageProps) {
                   await deletePost(post.post_id);
                 }}
               >
-                <button
-                  type="submit"
-                  className="inline-flex items-center justify-center rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground ring-offset-background transition-colors hover:bg-destructive/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="rounded-full"
                   title="Delete post"
                 >
                   −
-                </button>
+                </Button>
               </form>
             </div>
           </div>
-        </header>
+        </div>
 
-        <div className="pt-6">
-          <p className="text-lg leading-relaxed whitespace-pre-wrap">
+        <Separator className="my-8" />
+
+        <div className="prose prose-lg max-w-none dark:prose-invert">
+          <p className="text-lg leading-relaxed text-muted-foreground whitespace-pre-wrap">
             {post.content}
           </p>
         </div>
       </article>
-
-      <a
-        href="/"
-        className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
-      >
-        ← Back to all posts
-      </a>
     </main>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Post } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
+import { Post } from "@/lib/types";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface PostCardProps {
   post: Post;
@@ -13,17 +14,21 @@ export function PostCard({ post }: PostCardProps) {
 
   return (
     <Link href={`/posts/${post.post_id}`}>
-      <article className="rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow block">
-        <div className="p-6 space-y-2">
-          <h2 className="text-2xl font-bold tracking-tight">{post.title}</h2>
-          <p className="text-muted-foreground line-clamp-3">{post.content}</p>
-          <div className="flex items-center gap-4 pt-4 text-sm text-muted-foreground">
-            <span className="font-medium">{post.author}</span>
+      <Card className="transition-shadow hover:shadow-md">
+        <CardContent className="p-6 space-y-3">
+          <h2 className="text-2xl font-bold tracking-tight text-foreground">
+            {post.title}
+          </h2>
+          <p className="text-muted-foreground line-clamp-3 leading-relaxed">
+            {post.content}
+          </p>
+          <div className="flex items-center gap-3 pt-2 text-sm">
+            <span className="font-medium text-foreground">{post.author}</span>
             <span>•</span>
-            <time dateTime={post.create_at}>{formattedDate}</time>
+            <time className="text-muted-foreground" dateTime={post.create_at}>{formattedDate}</time>
           </div>
-        </div>
-      </article>
+        </CardContent>
+      </Card>
     </Link>
   );
 }
