@@ -8,6 +8,15 @@ export interface Post {
   update_at: string;
 }
 
+export interface Comment {
+  comment_id: string;
+  post_id: string;
+  content: string;
+  author: string;
+  create_at: string;
+  update_at: string;
+}
+
 export interface PostsResponse {
   posts: Post[];
   firstPage: number;

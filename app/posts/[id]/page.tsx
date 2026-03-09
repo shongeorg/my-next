@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Link } from "@/components/TransitionLink";
+import { CommentsList } from "./comments/CommentsList";
 
 const API_BASE_URL = "https://hono-on-vercel-woad.vercel.app";
 
@@ -103,6 +104,8 @@ export default async function PostPage({ params }: PostPageProps) {
             {post.content}
           </p>
         </div>
+
+        <CommentsList postId={id} />
       </article>
     </main>
   );

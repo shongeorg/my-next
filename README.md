@@ -5,6 +5,7 @@
 ## 🚀 Функції
 
 - **Повний CRUD** — створення, читання, оновлення, видалення постів
+- **Коментарі** — CRUD коментарів до постів
 - **Темна/світла тема** — Atom Dark тема з перемикачем і збереженням в localStorage
 - **View Transitions API** — плавні fade-in/fade-out переходи між сторінками
 - **Пагінація** — навігація по сторінках з постів
@@ -49,6 +50,11 @@ app/
     ├── [id]/
     │   ├── page.tsx      # Сторінка поста
     │   ├── action.ts     # Delete action
+    │   └── comments/     # Коментарі
+    │       ├── CommentsList.tsx
+    │       ├── CommentsForm.tsx
+    │       ├── CommentItem.tsx
+    │       └── actions.ts
     │   └── edit/
     │       ├── page.tsx  # Сторінка редагування
     │       ├── action.ts # Update action
@@ -97,11 +103,16 @@ lib/
 Бекенд: [hono-on-vercel](https://github.com/your-username/hono-on-vercel)
 
 ```
-GET    /api/posts          # Список постів з пагінацією
-GET    /api/posts/:id      # Окремий пост
-POST   /api/posts          # Створити пост
-PATCH  /api/posts/:id      # Оновити пост
-DELETE /api/posts/:id      # Видалити пост
+GET    /api/posts                    # Список постів з пагінацією
+GET    /api/posts/:id                # Окремий пост
+POST   /api/posts                    # Створити пост
+PATCH  /api/posts/:id                # Оновити пост
+DELETE /api/posts/:id                # Видалити пост
+
+GET    /api/posts/:id/comments       # Коментарі поста
+POST   /api/posts/:id/comments       # Створити коментар
+PATCH  /api/posts/:id/comments/:id   # Оновити коментар
+DELETE /api/posts/:id/comments/:id   # Видалити коментар
 ```
 
 ## 📝 Приклади
@@ -120,6 +131,14 @@ DELETE /api/posts/:id      # Видалити пост
 1. Відкрийте пост
 2. Клікніть −
 3. Пост видалено, редірект на головну
+
+### Коментарі
+1. Відкрийте пост
+2. Прогорніть до секції "Коментарі"
+3. Заповніть форму (ім'я, коментар)
+4. Натисніть "Додати коментар"
+5. Для редагування — ✏️ біля коментаря
+6. Для видалення — − біля коментаря
 
 ### Перемикання теми
 - Клікніть 🌙/☀️ в хедері
