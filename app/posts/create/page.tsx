@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useFormStatus } from "react-dom";
 import { useActionState } from "react";
 import { createPost } from "./action";
@@ -10,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Link } from "@/components/TransitionLink";
 
 function SubmitButton() {
   const { pending } = useFormStatus();

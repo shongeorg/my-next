@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { Post } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "@/components/TransitionLink";
 
 interface PostCardProps {
   post: Post;

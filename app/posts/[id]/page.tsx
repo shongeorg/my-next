@@ -1,9 +1,9 @@
 import { Post } from "@/lib/types";
 import { deletePost } from "./action";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Link } from "@/components/TransitionLink";
 
 const API_BASE_URL = "https://hono-on-vercel-woad.vercel.app";
 

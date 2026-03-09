@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Suspense } from "react";
 import { getPosts } from "@/lib/api";
 import { PostCard } from "@/components/PostCard";
@@ -6,6 +5,7 @@ import { Pagination } from "@/components/Pagination";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Link } from "@/components/TransitionLink";
 
 interface PageProps {
   searchParams: Promise<{ page?: string }>;
