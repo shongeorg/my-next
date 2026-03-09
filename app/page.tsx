@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Suspense } from "react";
 import { getPosts } from "@/lib/api";
 import { PostCard } from "@/components/PostCard";
@@ -34,11 +35,19 @@ export default async function Home({ searchParams }: PageProps) {
 
   return (
     <main className="container mx-auto max-w-3xl px-4 py-8 space-y-8">
-      <header className="space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight">Blog</h1>
-        <p className="text-muted-foreground">
-          Latest posts and updates
-        </p>
+      <header className="flex items-center justify-between space-y-2">
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold tracking-tight">Blog</h1>
+          <p className="text-muted-foreground">
+            Latest posts and updates
+          </p>
+        </div>
+        <Link
+          href="/posts/create"
+          className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          +
+        </Link>
       </header>
 
       <Suspense
