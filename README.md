@@ -1,36 +1,172 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Blog
 
-## Getting Started
+Блог на Next.js 15 з повним CRUD, темною темою та анімаціями переходів.
 
-First, run the development server:
+## 🚀 Функції
+
+- **Повний CRUD** — створення, читання, оновлення, видалення постів
+- **Темна/світла тема** — Atom Dark тема з перемикачем і збереженням в localStorage
+- **View Transitions API** — плавні fade-in/fade-out переходи між сторінками
+- **Пагінація** — навігація по сторінках з постів
+- **Server Components** — всі дані завантажуються на сервері
+- **Server Actions** — форми працюють без API routes
+- **Валідація** — клієнтська валідація форм (мін. 6 символів)
+- **shadcn/ui** — красиві та доступні компоненти
+
+## 🛠 Технології
+
+- **Next.js 15** — React фреймворк з App Router
+- **React 19** — остання версія з Server Components
+- **TypeScript** — типізація всього коду
+- **Tailwind CSS** — утилітарні стилі
+- **shadcn/ui** — компоненти (Button, Card, Input, тощо)
+- **date-fns** — форматування дат
+- **Hono API** — бекенд на Hono з PostgreSQL
+
+## 📦 Встановлення
 
 ```bash
+# Встановити залежності
+npm install
+
+# Запустити дев сервер
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Запустити Storybook
+npm run storybook
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Відкрийте [http://localhost:3000](http://localhost:3000) для додатку або [http://localhost:6006](http://localhost:6006) для Storybook.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Структура
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+app/
+├── page.tsx              # Головна сторінка з постами
+├── layout.tsx            # Root layout з ThemeProvider
+├── globals.css           # Глобальні стилі та CSS змінні
+└── posts/
+    ├── [id]/
+    │   ├── page.tsx      # Сторінка поста
+    │   ├── action.ts     # Delete action
+    │   └── edit/
+    │       ├── page.tsx  # Сторінка редагування
+    │       ├── action.ts # Update action
+    │       └── EditPostForm.tsx
+    └── create/
+        ├── page.tsx      # Сторінка створення
+        └── action.ts     # Create action
 
-## Learn More
+components/
+├── PostCard.tsx          # Картка поста
+├── Pagination.tsx        # Пагінація
+├── ThemeToggle.tsx       # Перемикач теми
+├── ThemeProvider.tsx     # Context для теми
+├── TransitionLink.tsx    # Link з View Transitions
+└── ui/                   # shadcn/ui компоненти
+    ├── button.tsx
+    ├── card.tsx
+    ├── input.tsx
+    ├── textarea.tsx
+    ├── label.tsx
+    ├── separator.tsx
+    ├── skeleton.tsx
+    ├── badge.tsx
+    └── dropdown-menu.tsx
 
-To learn more about Next.js, take a look at the following resources:
+lib/
+├── api.ts                # API функції
+├── types.ts              # TypeScript типи
+└── utils.ts              # Утиліти
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🎨 Теми
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Світла (Light)
+- Чистий білий фон
+- Сірі тексті для контрасту
+- Стиль Medium/форумів
 
-## Deploy on Vercel
+### Темна (Atom Dark)
+- Темно-сірий фон (#282c34)
+- Світло-сірий текст (#abb2bf)
+- Натхненна Atom One Dark
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🔌 API
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Бекенд: [hono-on-vercel](https://github.com/your-username/hono-on-vercel)
+
+```
+GET    /api/posts          # Список постів з пагінацією
+GET    /api/posts/:id      # Окремий пост
+POST   /api/posts          # Створити пост
+PATCH  /api/posts/:id      # Оновити пост
+DELETE /api/posts/:id      # Видалити пост
+```
+
+## 📝 Приклади
+
+### Створення поста
+1. Клікніть **+** в хедері
+2. Заповніть форму (заголовок, автор, контент)
+3. Натисніть "Створити пост"
+
+### Редагування
+1. Відкрийте пост
+2. Клікніть ✏️
+3. Змініть дані та збережіть
+
+### Видалення
+1. Відкрийте пост
+2. Клікніть −
+3. Пост видалено, редірект на головну
+
+### Перемикання теми
+- Клікніть 🌙/☀️ в хедері
+- Тема зберігається в localStorage
+
+## 🚀 Деплой
+
+### Vercel (рекомендовано)
+
+```bash
+npm install -g vercel
+vercel
+```
+
+### Docker
+
+```bash
+docker build -t blog .
+docker run -p 3000:3000 blog
+```
+
+## 📖 Storybook
+
+Storybook доступний для перегляду компонентів ізольовано:
+
+```bash
+npm run storybook
+```
+
+Відкрийте [http://localhost:6006](http://localhost:6006)
+
+### Доступні сторіз:
+
+**UI Компоненти:**
+- `UI/Button` — всі варіанти кнопок
+- `UI/Card` — картки з різними конфігураціями
+- `UI/Input` — поля вводу з типами
+- `UI/Textarea` — текстові поля
+- `UI/Separator` — розділювачі
+- `UI/Skeleton` — завантаження скелетони
+- `UI/Badge` — бейджі
+
+**Компоненти:**
+- `Components/PostCard` — картка поста
+- `Components/Pagination` — пагінація
+- `Components/ThemeToggle` — перемикач теми
+
+## 📄 Ліцензія
+
+MIT
