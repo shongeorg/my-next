@@ -8,6 +8,7 @@ import { UserMenu } from "@/components/UserMenu";
 import { Pagination } from "@/components/Pagination";
 import { Button } from "@/components/ui/button";
 import { cookies } from "next/headers";
+import type { Metadata } from "next";
 import type { Post, Author } from "@/lib/types";
 
 // Cache formatted dates to avoid recalculation

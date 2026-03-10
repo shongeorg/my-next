@@ -2,12 +2,13 @@ import { notFound } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
 import { cookies } from "next/headers";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getPostApi, getCommentsApi } from "@/lib/api";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { CommentsSection } from "./CommentsSection";
-import type { Post, Comment, Author, Metadata } from "@/lib/types";
+import type { Post, Comment, Author } from "@/lib/types";
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
