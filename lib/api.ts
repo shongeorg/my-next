@@ -1,37 +1,153 @@
-import { PostsResponse, Comment } from "./types";
+import type {
+  LoginInput,
+  RegisterInput,
+  CreatePostInput,
+  UpdatePostInput,
+  CreateCommentInput,
+  UpdateCommentInput,
+} from "./schemas";
+import type {
+  AuthResponse,
+  PostsResponse,
+  Post,
+  Comment,
+  ApiError,
+  ValidationError,
+} from "./types";
 
-const API_BASE_URL = "https://hono-on-vercel-woad.vercel.app";
+const API_BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-export async function getPosts(page: number = 1): Promise<PostsResponse> {
-  const url = new URL("/api/posts", API_BASE_URL);
-  url.searchParams.set("page", page.toString());
+// ==================== HELPER FUNCTIONS ====================
 
-  const response = await fetch(url.toString(), {
-    next: { revalidate: 60 },
-  });
-
+async function handleResponse<T>(response: Response): Promise<T | ApiError | ValidationError> {
+  const data = await response.json();
   if (!response.ok) {
-    return {
-      posts: [],
-      firstPage: 1,
-      lastPage: 1,
-      nextPage: null,
-      prevPage: null,
-      pages: 1,
-    };
+    return data as ApiError | ValidationError;
   }
-
-  return response.json();
+  return data as T;
 }
 
-export async function getComments(postId: string): Promise<Comment[]> {
-  const response = await fetch(`${API_BASE_URL}/api/posts/${postId}/comments`, {
-    next: { revalidate: 60 },
+// ==================== AUTH API ====================
+
+export async function loginApi(input: LoginInput): Promise<AuthResponse | ApiError | ValidationError> {
+  const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+    credentials: "include",
   });
+  return handleResponse<AuthResponse>(response);
+}
 
-  if (!response.ok) {
-    return [];
+export async function registerApi(input: RegisterInput): Promise<AuthResponse | ApiError | ValidationError> {
+  const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+    credentials: "include",
+  });
+  return handleResponse<AuthResponse>(response);
+}
+
+export function logout(): void {
+  document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+  document.cookie = "author=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+  window.location.href = "/";
+}
+
+// ==================== POSTS API ====================
+
+export async function getPostsApi(page: number = 1): Promise<PostsResponse | ApiError> {
+  const response = await fetch(`${API_BASE_URL}/api/posts?page=${page}`);
+  return handleResponse<PostsResponse>(response);
+}
+
+export async function getPostApi(postId: string): Promise<Post | ApiError> {
+  const response = await fetch(`${API_BASE_URL}/api/posts/${postId}`);
+  return handleResponse<Post>(response);
+}
+
+export async function createPostApi(input: CreatePostInput): Promise<Post | ApiError | ValidationError> {
+  const response = await fetch(`${API_BASE_URL}/api/posts`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+    credentials: "include",
+  });
+  return handleResponse<Post>(response);
+}
+
+export async function updatePostApi(postId: string, input: UpdatePostInput): Promise<Post | ApiError | ValidationError> {
+  const response = await fetch(`${API_BASE_URL}/api/posts/${postId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+    credentials: "include",
+  });
+  return handleResponse<Post>(response);
+}
+
+export async function deletePostApi(postId: string): Promise<{ message: string } | ApiError> {
+  const response = await fetch(`${API_BASE_URL}/api/posts/${postId}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  return handleResponse<{ message: string }>(response);
+}
+
+// ==================== COMMENTS API ====================
+
+export async function getCommentsApi(postId: string): Promise<Comment[] | ApiError> {
+  const response = await fetch(`${API_BASE_URL}/api/posts/${postId}/comments`);
+  return handleResponse<Comment[]>(response);
+}
+
+export async function createCommentApi(postId: string, input: CreateCommentInput): Promise<Comment | ApiError | ValidationError> {
+  const response = await fetch(`${API_BASE_URL}/api/posts/${postId}/comments`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+    credentials: "include",
+  });
+  return handleResponse<Comment>(response);
+}
+
+export async function updateCommentApi(postId: string, commentId: string, input: UpdateCommentInput): Promise<Comment | ApiError | ValidationError> {
+  const response = await fetch(`${API_BASE_URL}/api/posts/${postId}/comments/${commentId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+    credentials: "include",
+  });
+  return handleResponse<Comment>(response);
+}
+
+export async function deleteCommentApi(postId: string, commentId: string): Promise<{ message: string } | ApiError> {
+  const response = await fetch(`${API_BASE_URL}/api/posts/${postId}/comments/${commentId}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  return handleResponse<{ message: string }>(response);
+}
+
+// ==================== ERROR HELPERS ====================
+
+export function getErrorMessage(result: unknown): string {
+  if (typeof result === "object" && result !== null) {
+    if ("details" in result && Array.isArray((result as ValidationError).details)) {
+      return (result as ValidationError).details.map(d => d.message).join(", ");
+    }
+    if ("error" in result && typeof (result as ApiError).error === "string") {
+      return (result as ApiError).error;
+    }
   }
+  return "Сталася невідома помилка";
+}
 
-  return response.json();
+export function isApiError(result: unknown): result is ApiError {
+  return typeof result === "object" && result !== null && "error" in result;
+}
+
+export function isValidationError(result: unknown): result is ValidationError {
+  return typeof result === "object" && result !== null && "details" in result && Array.isArray((result as ValidationError).details);
 }

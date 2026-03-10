@@ -1,15 +1,15 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
-const API_BASE_URL = "https://hono-on-vercel-woad.vercel.app";
+const API_BASE_URL = process.env.NEXT_PUBLIC_APP_URL;
 
 export async function createPost(prevState: any, formData: FormData) {
   const title = formData.get("title") as string;
   const content = formData.get("content") as string;
-  const author = formData.get("author") as string;
 
-  // Проста валідація
+  // Валідація
   const errors: Record<string, string> = {};
 
   if (!title || title.trim().length < 6) {
@@ -20,26 +20,31 @@ export async function createPost(prevState: any, formData: FormData) {
     errors.content = "Контент має містити щонайменше 6 символів";
   }
 
-  if (!author || author.trim().length < 2) {
-    errors.author = "Ім'я автора має містити щонайменше 2 символи";
+  if (Object.keys(errors).length > 0) {
+    return { errors, values: { title, content } };
   }
 
-  if (Object.keys(errors).length > 0) {
-    return { errors, values: { title, content, author } };
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+
+  if (!token) {
+    redirect("/auth/login");
   }
 
   const response = await fetch(`${API_BASE_URL}/api/posts`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ title, content, author }),
+    body: JSON.stringify({ title, content }),
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    return { errors: { form: "Не вдалося створити пост" }, values: { title, content, author } };
+    return { errors: { form: data.error || "Не вдалося створити пост" }, values: { title, content } };
   }
 
-  const newPost = await response.json();
-  redirect(`/posts/${newPost.post_id}`);
+  redirect(`/posts/${data.post_id}`);
 }

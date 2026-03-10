@@ -1,24 +1,13 @@
-import { Post } from "@/lib/types";
-import { deletePost } from "./action";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { notFound } from "next/navigation";
+import { formatDistanceToNow } from "date-fns";
+import { uk } from "date-fns/locale";
+import { cookies } from "next/headers";
+import Link from "next/link";
+import { getPostApi, getCommentsApi } from "@/lib/api";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Link } from "@/components/TransitionLink";
-import { CommentsList } from "./comments/CommentsList";
-
-const API_BASE_URL = "https://hono-on-vercel-woad.vercel.app";
-
-async function getPost(id: string): Promise<Post | null> {
-  const response = await fetch(`${API_BASE_URL}/api/posts/${id}`, {
-    next: { revalidate: 60 },
-  });
-
-  if (!response.ok) {
-    return null;
-  }
-
-  return response.json();
-}
+import { Button } from "@/components/ui/button";
+import { CommentsSection } from "./CommentsSection";
+import type { Post, Comment, Author } from "@/lib/types";
 
 interface PostPageProps {
   params: Promise<{ id: string }>;
@@ -26,86 +15,59 @@ interface PostPageProps {
 
 export default async function PostPage({ params }: PostPageProps) {
   const { id } = await params;
-  const post = await getPost(id);
-
-  if (!post) {
-    return (
-      <main className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold text-foreground">Post not found</h1>
-          <Link href="/">
-            <Button>Back to Home</Button>
-          </Link>
-        </div>
-      </main>
-    );
-  }
+  
+  const postResult = await getPostApi(id);
+  if ("error" in postResult) notFound();
+  const post = postResult as Post;
+  
+  const commentsResult = await getCommentsApi(id);
+  const comments = ("error" in commentsResult) ? [] : commentsResult as Comment[];
+  
+  const cookieStore = await cookies();
+  const authorCookie = cookieStore.get("author");
+  const author: Author | null = authorCookie?.value ? JSON.parse(decodeURIComponent(authorCookie.value)) : null;
+  const isAuthor = author && author.authorId === post.author_id;
 
   return (
     <main className="min-h-screen bg-background">
       <article className="container mx-auto max-w-3xl px-4 py-12">
         <header className="flex items-center justify-between mb-8">
           <Link href="/">
-            <Button variant="ghost" className="gap-2">
-              ← Back to all posts
-            </Button>
+            <Button variant="outline">← Back to all posts</Button>
           </Link>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            {isAuthor && (
+              <>
+                <Link href={`/posts/${id}/edit`}>
+                  <Button variant="outline">✏️ Edit</Button>
+                </Link>
+                <form action={`/api/posts/${id}/delete`} method="POST">
+                  <Button type="submit" variant="destructive">− Delete</Button>
+                </form>
+              </>
+            )}
+          </div>
         </header>
 
-        <div className="space-y-6">
-          <div className="flex items-start justify-between">
-            <div className="space-y-4 flex-1">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground leading-tight">
-                {post.title}
-              </h1>
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">{post.author}</span>
-                <Separator orientation="vertical" className="h-4 w-px bg-border" />
-                <time dateTime={post.create_at}>
-                  {new Date(post.create_at).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </time>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 ml-4">
-              <Link href={`/posts/${id}/edit`}>
-                <Button variant="outline" size="icon" className="rounded-full" title="Edit post">
-                  ✏️
-                </Button>
-              </Link>
-              <form
-                action={async () => {
-                  "use server";
-                  await deletePost(post.post_id);
-                }}
-              >
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  className="rounded-full"
-                  title="Delete post"
-                >
-                  −
-                </Button>
-              </form>
-            </div>
+        <div className="space-y-6 mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold">{post.title}</h1>
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">
+              {post.authorName || post.author_id}
+            </span>
+            <span>•</span>
+            <time dateTime={post.create_at}>
+              {formatDistanceToNow(new Date(post.create_at), { addSuffix: true, locale: uk })}
+            </time>
           </div>
         </div>
 
-        <Separator className="my-8" />
-
-        <div className="prose prose-lg max-w-none dark:prose-invert">
-          <p className="text-lg leading-relaxed text-muted-foreground whitespace-pre-wrap">
-            {post.content}
-          </p>
+        <div className="prose prose-lg dark:prose-invert max-w-none mb-8">
+          <p className="text-lg leading-relaxed whitespace-pre-wrap">{post.content}</p>
         </div>
 
-        <CommentsList postId={id} />
+        <CommentsSection postId={id} comments={comments} author={author} />
       </article>
     </main>
   );
