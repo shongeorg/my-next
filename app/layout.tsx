@@ -8,9 +8,13 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
 export const metadata: Metadata = {
-  title: "Blog",
-  description: "Latest posts and updates",
+  metadataBase: new URL(SITE_URL),
+  alternates: {
+    canonical: '/',
+  },
 };
 
 export default function RootLayout({

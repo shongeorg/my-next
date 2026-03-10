@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import type {
   LoginInput,
   RegisterInput,
@@ -57,15 +58,26 @@ export function logout(): void {
 
 // ==================== POSTS API ====================
 
-export async function getPostsApi(page: number = 1): Promise<PostsResponse | ApiError> {
-  const response = await fetch(`${API_BASE_URL}/api/posts?page=${page}`);
+export const getPostsApi = cache(async (page: number = 1): Promise<PostsResponse | ApiError> => {
+  const response = await fetch(`${API_BASE_URL}/api/posts?page=${page}`, {
+    next: { revalidate: 60 },
+  });
   return handleResponse<PostsResponse>(response);
-}
+});
 
-export async function getPostApi(postId: string): Promise<Post | ApiError> {
-  const response = await fetch(`${API_BASE_URL}/api/posts/${postId}`);
+export const getPostApi = cache(async (postId: string): Promise<Post | ApiError> => {
+  const response = await fetch(`${API_BASE_URL}/api/posts/${postId}`, {
+    next: { revalidate: 60 },
+  });
   return handleResponse<Post>(response);
-}
+});
+
+export const getCommentsApi = cache(async (postId: string): Promise<Comment[] | ApiError> => {
+  const response = await fetch(`${API_BASE_URL}/api/posts/${postId}/comments`, {
+    next: { revalidate: 60 },
+  });
+  return handleResponse<Comment[]>(response);
+});
 
 export async function createPostApi(input: CreatePostInput): Promise<Post | ApiError | ValidationError> {
   const response = await fetch(`${API_BASE_URL}/api/posts`, {
@@ -96,11 +108,6 @@ export async function deletePostApi(postId: string): Promise<{ message: string }
 }
 
 // ==================== COMMENTS API ====================
-
-export async function getCommentsApi(postId: string): Promise<Comment[] | ApiError> {
-  const response = await fetch(`${API_BASE_URL}/api/posts/${postId}/comments`);
-  return handleResponse<Comment[]>(response);
-}
 
 export async function createCommentApi(postId: string, input: CreateCommentInput): Promise<Comment | ApiError | ValidationError> {
   const response = await fetch(`${API_BASE_URL}/api/posts/${postId}/comments`, {

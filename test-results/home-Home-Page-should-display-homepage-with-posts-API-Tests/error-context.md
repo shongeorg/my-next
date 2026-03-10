@@ -1,0 +1,107 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - heading "Blog - Tech Tutorials" [level=1] [ref=e6]
+          - paragraph [ref=e7]: Latest posts and updates
+        - generic [ref=e8]:
+          - button [ref=e9] [cursor=pointer]:
+            - img [ref=e10]
+          - link "Увійти" [ref=e12] [cursor=pointer]:
+            - /url: /auth/login
+            - button "Увійти" [ref=e13]
+      - generic [ref=e14]:
+        - link "Post for comments Content Test User • 2 хвилини тому" [ref=e15] [cursor=pointer]:
+          - /url: /posts/f41000ec-d488-4329-b04e-2200db76fe52
+          - heading "Post for comments" [level=2] [ref=e16]
+          - paragraph [ref=e17]: Content
+          - generic [ref=e18]:
+            - generic [ref=e19]: Test User
+            - generic [ref=e20]: •
+            - time [ref=e21]: 2 хвилини тому
+        - link "Post for comments Content Test User • 2 хвилини тому" [ref=e22] [cursor=pointer]:
+          - /url: /posts/68ee3b26-450e-4fd1-a5ca-a109e403eccd
+          - heading "Post for comments" [level=2] [ref=e23]
+          - paragraph [ref=e24]: Content
+          - generic [ref=e25]:
+            - generic [ref=e26]: Test User
+            - generic [ref=e27]: •
+            - time [ref=e28]: 2 хвилини тому
+        - link "Post for comments Content Test User • 2 хвилини тому" [ref=e29] [cursor=pointer]:
+          - /url: /posts/1997d149-ccd7-4b71-8349-9875011bbba7
+          - heading "Post for comments" [level=2] [ref=e30]
+          - paragraph [ref=e31]: Content
+          - generic [ref=e32]:
+            - generic [ref=e33]: Test User
+            - generic [ref=e34]: •
+            - time [ref=e35]: 2 хвилини тому
+        - link "Post for comments Content Test User • 2 хвилини тому" [ref=e36] [cursor=pointer]:
+          - /url: /posts/6920b296-61bc-417e-a307-00ea08b0c349
+          - heading "Post for comments" [level=2] [ref=e37]
+          - paragraph [ref=e38]: Content
+          - generic [ref=e39]:
+            - generic [ref=e40]: Test User
+            - generic [ref=e41]: •
+            - time [ref=e42]: 2 хвилини тому
+        - link "Post for comments Content Test User • 2 хвилини тому" [ref=e43] [cursor=pointer]:
+          - /url: /posts/a878de40-d011-4e20-af79-ef0b20687c91
+          - heading "Post for comments" [level=2] [ref=e44]
+          - paragraph [ref=e45]: Content
+          - generic [ref=e46]:
+            - generic [ref=e47]: Test User
+            - generic [ref=e48]: •
+            - time [ref=e49]: 2 хвилини тому
+        - link "Single post test Content for single post Test User • 2 хвилини тому" [ref=e50] [cursor=pointer]:
+          - /url: /posts/aa112a3b-ec3f-4a3f-b0c0-14070c5e49de
+          - heading "Single post test" [level=2] [ref=e51]
+          - paragraph [ref=e52]: Content for single post
+          - generic [ref=e53]:
+            - generic [ref=e54]: Test User
+            - generic [ref=e55]: •
+            - time [ref=e56]: 2 хвилини тому
+        - link "Updated Title Updated content Test User • 2 хвилини тому" [ref=e57] [cursor=pointer]:
+          - /url: /posts/fb23b919-fcbf-47cf-9042-34d373fef93d
+          - heading "Updated Title" [level=2] [ref=e58]
+          - paragraph [ref=e59]: Updated content
+          - generic [ref=e60]:
+            - generic [ref=e61]: Test User
+            - generic [ref=e62]: •
+            - time [ref=e63]: 2 хвилини тому
+        - link "Test Post This is test content Test User • 2 хвилини тому" [ref=e64] [cursor=pointer]:
+          - /url: /posts/d5f5891f-170e-4f67-953d-cdbbcbc971e2
+          - heading "Test Post" [level=2] [ref=e65]
+          - paragraph [ref=e66]: This is test content
+          - generic [ref=e67]:
+            - generic [ref=e68]: Test User
+            - generic [ref=e69]: •
+            - time [ref=e70]: 2 хвилини тому
+        - link "Test Post This is test content Test User • 2 хвилини тому" [ref=e71] [cursor=pointer]:
+          - /url: /posts/70f18d20-c039-4d43-8387-c3fe9ee6a421
+          - heading "Test Post" [level=2] [ref=e72]
+          - paragraph [ref=e73]: This is test content
+          - generic [ref=e74]:
+            - generic [ref=e75]: Test User
+            - generic [ref=e76]: •
+            - time [ref=e77]: 2 хвилини тому
+        - link "Post for comments Content Test User • близько 1 години тому" [ref=e78] [cursor=pointer]:
+          - /url: /posts/1c14272e-9850-44d4-9a5a-411fd99b36b5
+          - heading "Post for comments" [level=2] [ref=e79]
+          - paragraph [ref=e80]: Content
+          - generic [ref=e81]:
+            - generic [ref=e82]: Test User
+            - generic [ref=e83]: •
+            - time [ref=e84]: близько 1 години тому
+      - navigation "Pagination" [ref=e85]:
+        - button "Попередня" [disabled]
+        - generic [ref=e86]: 1 / 8
+        - link "Наступна" [ref=e87] [cursor=pointer]:
+          - /url: /?page=2
+          - button "Наступна" [ref=e88]
+  - button "Open Next.js Dev Tools" [ref=e94] [cursor=pointer]:
+    - img [ref=e95]
+  - alert [ref=e98]
+```

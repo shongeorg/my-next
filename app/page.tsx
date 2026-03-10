@@ -1,12 +1,71 @@
-import { Suspense } from "react";
+import { Suspense, cache } from "react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
 import { getPostsApi } from "@/lib/api";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { UserMenu } from "@/components/UserMenu";
+import { Pagination } from "@/components/Pagination";
 import { Button } from "@/components/ui/button";
 import { cookies } from "next/headers";
 import type { Post, Author } from "@/lib/types";
+
+// Cache formatted dates to avoid recalculation
+const formatPostDate = cache((dateString: string) => {
+  return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: uk });
+});
+
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
+export const metadata: Metadata = {
+  title: "Blog - Latest Tech Tutorials & Development Insights",
+  description: "Read the latest articles about web development, programming tutorials, and tech insights. Stay updated with modern development practices and best practices.",
+  keywords: ["blog", "development", "programming", "tutorials", "tech", "web development"],
+  authors: [{ name: "Blog Team" }],
+  creator: "Blog Team",
+  publisher: "Blog",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL(SITE_URL),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: "Blog - Latest Tech Tutorials & Development Insights",
+    description: "Read the latest articles about web development, programming tutorials, and tech insights.",
+    url: SITE_URL,
+    siteName: "Blog",
+    locale: 'uk_UA',
+    type: 'website',
+    images: [
+      {
+        url: `${SITE_URL}/og-image.png`,
+        width: 1200,
+        height: 630,
+        alt: 'Blog',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Blog - Latest Tech Tutorials & Development Insights",
+    description: "Read the latest articles about web development, programming tutorials, and tech insights.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+};
 
 interface PageProps {
   searchParams: Promise<{ page?: string }>;
@@ -29,10 +88,11 @@ async function PostsContent({ page }: { page: number }) {
     <>
       <div className="grid gap-6">
         {posts.map((post) => (
-          <Link 
-            key={post.post_id} 
+          <Link
+            key={post.post_id}
             href={`/posts/${post.post_id}`}
             className="block rounded-lg border p-6 hover:bg-accent/50 transition-colors"
+            style={{ contentVisibility: 'auto', containIntrinsicSize: '0 200px' }}
           >
             <h2 className="text-xl font-bold mb-2">{post.title}</h2>
             <p className="text-muted-foreground line-clamp-2 mb-4">
@@ -44,34 +104,19 @@ async function PostsContent({ page }: { page: number }) {
               </span>
               <span>•</span>
               <time dateTime={post.create_at}>
-                {formatDistanceToNow(new Date(post.create_at), { addSuffix: true, locale: uk })}
+                {formatPostDate(post.create_at)}
               </time>
             </div>
           </Link>
         ))}
       </div>
 
-      <nav className="flex items-center justify-center gap-2 mt-8" aria-label="Pagination">
-        {prevPage ? (
-          <Link href={`/?page=${prevPage}`}>
-            <Button variant="outline">Попередня</Button>
-          </Link>
-        ) : (
-          <Button variant="outline" disabled>Попередня</Button>
-        )}
-        
-        <span className="px-4 py-2 text-sm">
-          {page} / {pages}
-        </span>
-        
-        {nextPage ? (
-          <Link href={`/?page=${nextPage}`}>
-            <Button variant="outline">Наступна</Button>
-          </Link>
-        ) : (
-          <Button variant="outline" disabled>Наступна</Button>
-        )}
-      </nav>
+      <Pagination
+        currentPage={page}
+        totalPages={pages}
+        nextPage={nextPage}
+        prevPage={prevPage}
+      />
     </>
   );
 }
@@ -89,7 +134,7 @@ export default async function Home({ searchParams }: PageProps) {
       <div className="container mx-auto max-w-3xl px-4 py-12 space-y-8">
         <header className="flex items-center justify-between border-b pb-6">
           <div className="space-y-1">
-            <h1 className="text-4xl font-bold">Blog</h1>
+            <h1 className="text-4xl font-bold">Blog - Tech Tutorials</h1>
             <p className="text-muted-foreground">Latest posts and updates</p>
           </div>
           <div className="flex items-center gap-2">
@@ -97,10 +142,24 @@ export default async function Home({ searchParams }: PageProps) {
             {author ? (
               <>
                 <Link href="/posts/create">
-                  <Button>+ Створити пост</Button>
+                  <Button variant="default" size="icon" className="sm:hidden" aria-label="Створити пост">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                      <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </Button>
+                  <Button variant="default" className="hidden sm:inline-flex">
+                    + Створити пост
+                  </Button>
                 </Link>
                 <form action="/api/auth/logout" method="POST">
-                  <Button type="submit" variant="outline">
+                  <Button type="submit" variant="outline" size="icon" className="sm:hidden" aria-label="Вийти">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" strokeLinecap="round" strokeLinejoin="round"/>
+                      <polyline points="16 17 21 12 16 7" strokeLinecap="round" strokeLinejoin="round"/>
+                      <line x1="21" y1="12" x2="9" y2="12" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </Button>
+                  <Button type="submit" variant="outline" className="hidden sm:inline-flex">
                     Вийти ({author.name})
                   </Button>
                 </form>

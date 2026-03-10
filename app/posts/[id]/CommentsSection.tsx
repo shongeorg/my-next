@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import useSWR from "swr";
 import { formatDistanceToNow } from "date-fns";
 import { uk } from "date-fns/locale";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createCommentSchema, type CreateCommentInput } from "@/lib/schemas";
-import { createCommentApi, updateCommentApi, deleteCommentApi } from "@/lib/api";
+import { createCommentApi, updateCommentApi, deleteCommentApi, getErrorMessage } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import type { Comment, Author } from "@/lib/types";
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface CommentsSectionProps {
   postId: string;
@@ -17,10 +20,21 @@ interface CommentsSectionProps {
 }
 
 export function CommentsSection({ postId, comments: initialComments, author }: CommentsSectionProps) {
-  const [comments, setComments] = useState(initialComments);
+  const { data: comments, mutate } = useSWR<Comment[]>(
+    `/api/posts/${postId}/comments`,
+    fetcher,
+    {
+      fallbackData: initialComments,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+    }
+  );
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
-  
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   const authorId = author?.authorId;
   const authorName = author?.name;
 
@@ -34,41 +48,52 @@ export function CommentsSection({ postId, comments: initialComments, author }: C
     defaultValues: { content: editContent },
   });
 
-  const onAddComment = async (data: CreateCommentInput) => {
+  const onAddComment = useCallback(async (data: CreateCommentInput) => {
     const result = await createCommentApi(postId, data);
     if ("error" in result) {
-      alert(typeof result.error === "string" ? result.error : "Помилка додавання коментаря");
+      setError(getErrorMessage(result));
       return;
     }
-    setComments([...comments, result as Comment]);
+    mutate([...(comments || []), result as Comment], { revalidate: false });
     reset();
-  };
+    setError(null);
+  }, [postId, comments, mutate, reset]);
 
-  const onEditComment = async (data: CreateCommentInput) => {
+  const onEditComment = useCallback(async (data: CreateCommentInput) => {
     if (!editingId) return;
     const result = await updateCommentApi(postId, editingId, data);
     if ("error" in result) {
-      alert(typeof result.error === "string" ? result.error : "Помилка оновлення коментаря");
+      setError(getErrorMessage(result));
       return;
     }
-    setComments(comments.map(c => c.comment_id === editingId ? { ...c, content: data.content } : c));
+    mutate(comments?.map((c) => c.comment_id === editingId ? { ...c, content: data.content } : c), { revalidate: false });
     setEditingId(null);
-  };
+    setError(null);
+  }, [postId, editingId, comments, mutate]);
 
-  const onDeleteComment = async (commentId: string) => {
-    if (!confirm("Видалити коментар?")) return;
+  const handleDelete = useCallback(async (commentId: string) => {
+    setError(null);
+    setDeletingId(commentId);
+
+    const optimisticComments = comments?.filter((c) => c.comment_id !== commentId) || [];
+    mutate(optimisticComments, { revalidate: false });
+
     const result = await deleteCommentApi(postId, commentId);
+
     if ("error" in result) {
-      alert(typeof result.error === "string" ? result.error : "Помилка видалення коментаря");
+      setError(getErrorMessage(result));
+      mutate();
+      setDeletingId(null);
       return;
     }
-    setComments(comments.filter(c => c.comment_id !== commentId));
-  };
 
-  const startEdit = (comment: Comment) => {
-    setEditingId(comment.comment_id);
-    setEditContent(comment.content);
-  };
+    setDeletingId(null);
+    mutate();
+  }, [postId, comments, mutate]);
+
+  if (!comments) {
+    return <div className="mt-8 text-muted-foreground">Завантаження коментарів...</div>;
+  }
 
   return (
     <div className="mt-12">
@@ -76,18 +101,23 @@ export function CommentsSection({ postId, comments: initialComments, author }: C
 
       {authorId ? (
         <form onSubmit={handleSubmitComment(onAddComment)} className="mb-8 space-y-4">
+          {error && (
+            <div className="p-3 rounded bg-destructive/10 border border-destructive/50">
+              <p className="text-sm text-destructive">{error}</p>
+            </div>
+          )}
           <div>
             <textarea
-              {...registerComment("content")}
+              {...registerComment("content", { required: "Введіть текст коментаря" })}
               rows={3}
               placeholder="Введіть коментар"
               className="w-full px-3 py-2 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring resize-y"
             />
             {commentErrors.content && (
-              <p className="text-sm text-destructive">{commentErrors.content.message}</p>
+              <p className="text-sm text-destructive">{commentErrors.content?.message}</p>
             )}
           </div>
-          <Button type="submit">Додати коментар</Button>
+          <Button type="submit" disabled={deletingId !== null}>Додати коментар</Button>
         </form>
       ) : (
         <div className="mb-8 p-4 rounded border bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
@@ -104,9 +134,14 @@ export function CommentsSection({ postId, comments: initialComments, author }: C
           {comments.map((comment) => {
             const isCommentAuthor = authorId === comment.author_id;
             const isEditing = editingId === comment.comment_id;
+            const isDeleting = deletingId === comment.comment_id;
 
             return (
-              <div key={comment.comment_id} className="rounded-lg border bg-card p-4">
+              <div
+                key={comment.comment_id}
+                className="rounded-lg border bg-card p-4"
+                style={{ contentVisibility: 'auto', containIntrinsicSize: '0 100px' }}
+              >
                 {isEditing ? (
                   <form onSubmit={handleSubmitEdit(onEditComment)} className="space-y-3">
                     <textarea
@@ -134,11 +169,14 @@ export function CommentsSection({ postId, comments: initialComments, author }: C
                           {formatDistanceToNow(new Date(comment.create_at), { addSuffix: true, locale: uk })}
                         </time>
                       </div>
-                      {isCommentAuthor && (
+                      {isCommentAuthor && !isDeleting && (
                         <div className="flex gap-2">
-                          <Button variant="ghost" size="icon" onClick={() => startEdit(comment)}>✏️</Button>
-                          <Button variant="ghost" size="icon" onClick={() => onDeleteComment(comment.comment_id)}>−</Button>
+                          <Button variant="ghost" size="icon" onClick={() => { setEditingId(comment.comment_id); setEditContent(comment.content); }}>✏️</Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleDelete(comment.comment_id)}>−</Button>
                         </div>
+                      )}
+                      {isDeleting && (
+                        <span className="text-sm text-muted-foreground">Видалення...</span>
                       )}
                     </div>
                     <p className="text-muted-foreground whitespace-pre-wrap">{comment.content}</p>
