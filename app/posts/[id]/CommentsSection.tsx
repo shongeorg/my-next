@@ -43,10 +43,17 @@ export function CommentsSection({ postId, comments: initialComments, author }: C
     defaultValues: { content: "" },
   });
 
-  const { register: registerEdit, handleSubmit: handleSubmitEdit, formState: { errors: editErrors } } = useForm({
+  const { register: registerEdit, handleSubmit: handleSubmitEdit, formState: { errors: editErrors }, reset: resetEdit } = useForm({
     resolver: zodResolver(createCommentSchema),
-    defaultValues: { content: editContent },
+    defaultValues: { content: "" },
   });
+
+  // Update form when starting edit
+  const startEdit = useCallback((comment: Comment) => {
+    setEditingId(comment.comment_id);
+    setEditContent(comment.content);
+    resetEdit({ content: comment.content });
+  }, [resetEdit]);
 
   const onAddComment = useCallback(async (data: CreateCommentInput) => {
     const result = await createCommentApi(postId, data);
@@ -171,7 +178,7 @@ export function CommentsSection({ postId, comments: initialComments, author }: C
                       </div>
                       {isCommentAuthor && !isDeleting && (
                         <div className="flex gap-2">
-                          <Button variant="ghost" size="icon" onClick={() => { setEditingId(comment.comment_id); setEditContent(comment.content); }}>✏️</Button>
+                          <Button variant="ghost" size="icon" onClick={() => startEdit(comment)}>✏️</Button>
                           <Button variant="ghost" size="icon" onClick={() => handleDelete(comment.comment_id)}>−</Button>
                         </div>
                       )}

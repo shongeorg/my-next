@@ -7,17 +7,15 @@ import { updatePostApi, getErrorMessage } from "@/lib/api";
 import type { ApiError, ValidationError } from "@/lib/types";
 
 interface EditPostFormProps {
+  postId: string;
   initialData: {
     title: string;
     content: string;
   };
 }
 
-export default function EditPostForm({ initialData }: EditPostFormProps) {
+export default function EditPostForm({ postId, initialData }: EditPostFormProps) {
   const router = useRouter();
-  const params = useParams();
-  const postId = params.id as string;
-  
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState(initialData);
